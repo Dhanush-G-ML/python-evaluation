@@ -11,6 +11,9 @@ jobs:
   check:
     name: Submission checks
     runs-on: ubuntu-latest
+    env:
+      BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -22,10 +25,17 @@ jobs:
       - name: Check branch, scope and syntax
         env:
           PR_BRANCH: ${{ github.head_ref }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           REPO_OWNER: ${{ github.repository_owner }}
         run: |
           git show "$BASE_SHA:tools/check_submission.py" > "$RUNNER_TEMP/check_submission.py"
           python -I "$RUNNER_TEMP/check_submission.py" --branch "$PR_BRANCH" --base "$BASE_SHA" --head "$HEAD_SHA" --author "$PR_AUTHOR" --owner "$REPO_OWNER"
+      - name: Test sample greeting behavior
+        if: github.head_ref == 'submission/sample-user/01' && github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          python -m pip install 'pytest>=9,<10'
+          practice_dir="$(mktemp -d)"
+          git show "$BASE_SHA:.github/tests/test_sample_greeting.py" > "$practice_dir/test_sample_greeting.py"
+          git show "$HEAD_SHA:submissions/sample-user/01-practice/greeting.py" > "$practice_dir/greeting.py"
+          cd "$practice_dir"
+          PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q test_sample_greeting.py
