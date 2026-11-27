@@ -12,7 +12,6 @@ jobs:
     name: Submission checks
     runs-on: ubuntu-latest
     env:
-      BASE_SHA: ${{ github.event.pull_request.base.sha }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
     steps:
       - uses: actions/checkout@v7
@@ -22,17 +21,24 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - name: Check branch, scope and syntax
+      - name: Check submission scope and syntax
         env:
           PR_BRANCH: ${{ github.head_ref }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           REPO_OWNER: ${{ github.repository_owner }}
         run: |
+          # The checkout is GitHub's test merge commit. Its first parent is the base used for this run.
+          BASE_SHA="$(git rev-parse --verify 'HEAD^1')"
+          printf 'BASE_SHA=%s\n' "$BASE_SHA" >> "$GITHUB_ENV"
           git show "$BASE_SHA:tools/check_submission.py" > "$RUNNER_TEMP/check_submission.py"
           python -I "$RUNNER_TEMP/check_submission.py" --branch "$PR_BRANCH" --base "$BASE_SHA" --head "$HEAD_SHA" --author "$PR_AUTHOR" --owner "$REPO_OWNER"
       - name: Test sample greeting behavior
-        if: github.head_ref == 'submission/sample-user/01' && github.event.pull_request.head.repo.full_name == github.repository
+        if: github.event.pull_request.head.repo.full_name == github.repository
         run: |
+          sample_changes="$(git diff --name-only "$BASE_SHA...$HEAD_SHA" -- submissions/sample-user/01-practice/)"
+          if [ -z "$sample_changes" ]; then
+            exit 0
+          fi
           python -m pip install 'pytest>=9,<10'
           practice_dir="$(mktemp -d)"
           git show "$BASE_SHA:.github/tests/test_sample_greeting.py" > "$practice_dir/test_sample_greeting.py"

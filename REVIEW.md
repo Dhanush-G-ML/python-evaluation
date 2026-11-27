@@ -22,7 +22,7 @@ The CSV includes **Workbook sheet**, **Rating cell**, **Trainer comments cell**,
 
 The **Pull request validation** workflow checks PR scope and Python syntax. The **Submission progress** workflow creates a `submission-progress` CSV artifact after a push or merge to `main`. For a filtered progress report, open **Actions**, select **Submission progress**, choose **Run workflow**, and enter topics and first names. Download the CSV from the run's **Artifacts** section.
 
-On the sample branch `submission/sample-user/01`, **Submission checks** also runs a public pytest test for the greeting after the syntax check passes.
+When a PR from this repository changes files in `submissions/sample-user/01-practice/`, **Submission checks** also runs a public pytest test for the greeting after the syntax check passes.
 
 The progress CSV shows which exercises have code. Use the local evaluation command for private trainer tests and Excel rating evidence. GitHub artifacts are accessible to people with read access to this repo.
 
@@ -45,17 +45,17 @@ The workbook calculates core and challenge averages separately. With its default
 ## Review a submission
 
 1. Check the pull request's changed files and note the assigned IDs and head commit. The branch and pull request are visible to others who have access to the shared repository.
-2. For a PR that is still open, fetch its branch and create a detached worktree at the head SHA.
+2. For a PR that is still open, replace `<pr-branch>` with its compare branch name. Fetch the branch and create a detached worktree at the head SHA.
 
    ```powershell
-   git fetch origin submission/dhanya-arun/01
-   git worktree add --detach ../python-review-dhanya FETCH_HEAD
+   git fetch origin "<pr-branch>"
+   git worktree add --detach ../python-review FETCH_HEAD
    ```
 
 3. From the trainer's checkout, run the report against that worktree. The report checks each submitted exercise independently, so a partial PR produces results for the work it contains.
 
    ```powershell
-   python tools/report_evaluation.py --topic 01 --user Dhanya --submissions-dir ../python-review-dhanya/submissions
+   python tools/report_evaluation.py --topic "<topic-number>" --user "<mentee-first-name>" --submissions-dir ../python-review/submissions
    ```
 
    For Topic 15, the report runs the mentee's tests against the original starter implementation, checks coverage for T15-E10 through T15-E12, and reports which trainer variants the tests catch. Compare assignment-specific fixture, marker and assertion requirements with the exercise checklist.

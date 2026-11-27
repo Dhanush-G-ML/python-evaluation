@@ -46,11 +46,12 @@ Replace each angle-bracket placeholder with your own value.
 - `<your-folder>` is your exact folder name from the [submission folder list](submissions/README.md).
 - `<topic-folder>` is the full folder name of your assigned topic in the exercise bank.
 - `<topic-number>` is the two-digit prefix of that topic folder.
+- `<branch-name>` is a valid Git branch name you choose for this topic.
 
 ```powershell
 git switch main
 git pull --ff-only
-git switch -c "submission/<your-folder>/<topic-number>"
+git switch -c "<branch-name>"
 ```
 
 `git pull --ff-only` brings your local `main` up to date if Git can advance it without a merge. `git switch -c` creates the topic branch and switches to it. Open `submissions/<your-folder>/<topic-folder>/` and add code to the question files for your assigned exercises. Run them against the samples and acceptance checklist in the exercise instructions. Keep demonstrations under `if __name__ == "__main__":` so the reviewer can import your functions or classes.
@@ -65,7 +66,7 @@ git diff
 git add -- "submissions/<your-folder>/<topic-folder>/"
 git diff --staged
 git commit -m "Submit Topic <topic-number> exercises"
-git push -u origin "submission/<your-folder>/<topic-number>"
+git push -u origin "<branch-name>"
 ```
 
 Use `git status` to confirm the branch and see the files you changed. `git diff` shows unstaged edits to tracked files. `git add` selects files for the next commit, and `git diff --staged` lets you review exactly what you're about to commit. The first push publishes your branch on GitHub and connects it to your local branch so later pushes can use `git push`.
@@ -73,9 +74,9 @@ Use `git status` to confirm the branch and see the files you changed. `git diff`
 ### 4. Open and review your pull request on GitHub
 
 1. Open the repository on GitHub and choose **Compare & pull request** for the branch you pushed.
-2. Set the **base** branch to `main` and the **compare** branch to `submission/<your-folder>/<topic-number>`. Check that the diff contains files from your own topic folder.
+2. Set the **base** branch to `main` and the **compare** branch to `<branch-name>`. Check that the diff contains files from your own topic folder.
 3. Use `<your-name> | Topic <topic-number>` as the title. Fill in the PR template with your exercise IDs, commands and results, and any references or help you used. Select **Create pull request** and request your mentor's review.
-4. Open the **Checks** tab and look for **Submission checks**. It verifies the branch name, the changed file paths and Python syntax. If it fails, open the check log to find the exact problem.
+4. Open the **Checks** tab and look for **Submission checks**. It verifies that your changes belong to one submission topic folder and checks Python syntax. If it fails, open the check log to find the exact problem.
 
 `main` requires passing checks, resolved review threads and two approvals, including one from the repository owner. See the [pull request rules](CONTRIBUTING.md).
 
