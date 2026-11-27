@@ -24,7 +24,7 @@ The **Submission checks and progress** workflow checks PR scope and Python synta
 
 The progress CSV shows which exercises have code. Use the local evaluation command for private trainer tests and Excel rating evidence. GitHub artifacts are accessible to people with read access to this repo.
 
-The `.github/main-ruleset.json` file can be imported in **Settings → Rules → Rulesets** on a plan that supports rulesets for this repository. Once active, it requires a passing **Submission checks** result from GitHub Actions, one PR approval, and resolved review threads. It also blocks force pushes and deletion of `main`.
+The `.github/main-ruleset.json` file can be imported in **Settings → Rules → Rulesets** on a plan that supports rulesets for this repository. Once active, it requires a passing **Submission checks** result from GitHub Actions, resolved review threads, and two approvals for every PR into `main`. One approval must come from `@Dhanush-G-ML`, the code owner, and the other from a different reviewer with write access. It also blocks force pushes and deletion of `main`. The owner-authored sample PR cannot satisfy the owner-approval requirement because GitHub prevents authors from approving their own PRs.
 
 ## Apply the workbook rubric
 
