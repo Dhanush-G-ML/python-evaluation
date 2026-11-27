@@ -20,7 +20,7 @@ The CSV includes **Workbook sheet**, **Rating cell**, **Trainer comments cell**,
 
 ## GitHub Actions
 
-The **Submission checks and progress** workflow checks PR scope and Python syntax. It also creates a `submission-progress` CSV artifact after a push or merge to `main`. For a filtered progress report, open **Actions**, select the workflow, choose **Run workflow**, and enter topics and first names. Download the CSV from the run's **Artifacts** section.
+The **Pull request validation** workflow checks PR scope and Python syntax. The **Submission progress** workflow creates a `submission-progress` CSV artifact after a push or merge to `main`. For a filtered progress report, open **Actions**, select **Submission progress**, choose **Run workflow**, and enter topics and first names. Download the CSV from the run's **Artifacts** section.
 
 The progress CSV shows which exercises have code. Use the local evaluation command for private trainer tests and Excel rating evidence. GitHub artifacts are accessible to people with read access to this repo.
 
