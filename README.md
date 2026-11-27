@@ -46,4 +46,6 @@ Use this repository to submit your assigned Python exercises for mentor review. 
 
 Treat `exercises/` as shared reference material and keep your pull request scoped to your submission folder.
 
+Read the [pull request rules](CONTRIBUTING.md) before opening your first PR.
+
 Mentors can use the [review guide](REVIEW.md) to check a specific submission commit.

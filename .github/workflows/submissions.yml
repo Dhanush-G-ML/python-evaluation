@@ -1,0 +1,67 @@
+name: Submission checks and progress
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      topics:
+        description: "Topics (for example 1,3-5 or all)"
+        default: all
+        type: string
+      users:
+        description: "First names (for example Sahana,Dhanya or all)"
+        default: all
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Submission checks
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Check branch, scope and syntax
+        env:
+          PR_BRANCH: ${{ github.head_ref }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          REPO_OWNER: ${{ github.repository_owner }}
+        run: |
+          git show "$BASE_SHA:tools/check_submission.py" > "$RUNNER_TEMP/check_submission.py"
+          python -I "$RUNNER_TEMP/check_submission.py" --branch "$PR_BRANCH" --base "$BASE_SHA" --head "$HEAD_SHA" --author "$PR_AUTHOR" --owner "$REPO_OWNER"
+
+  progress:
+    name: Generate progress CSV
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Generate CSV
+        env:
+          TOPICS: ${{ inputs.topics || 'all' }}
+          USERS: ${{ inputs.users || 'all' }}
+        run: python tools/submission_progress.py --topic "$TOPICS" --user "$USERS" --output report/submission-progress.csv
+      - uses: actions/upload-artifact@v7
+        with:
+          name: submission-progress
+          path: report/submission-progress.csv
+          if-no-files-found: error
+          retention-days: 14

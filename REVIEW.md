@@ -18,6 +18,14 @@ Topic ranges include both endpoints. Select mentees by first name in any letter 
 
 The CSV includes **Workbook sheet**, **Rating cell**, **Trainer comments cell**, **Check**, **Suggested rating**, **Your rating**, and the test evidence. Question-only files appear as **No submission**, with a blank rating. Failed checks or incomplete files suggest a provisional **2**. For passing checks, use the rubric and the PR review to choose a rating. Review individual errors before entering any value.
 
+## GitHub Actions
+
+The **Submission checks and progress** workflow checks PR scope and Python syntax. It also creates a `submission-progress` CSV artifact after a push or merge to `main`. For a filtered progress report, open **Actions**, select the workflow, choose **Run workflow**, and enter topics and first names. Download the CSV from the run's **Artifacts** section.
+
+The progress CSV shows which exercises have code. Use the local evaluation command for private trainer tests and Excel rating evidence. GitHub artifacts are accessible to people with read access to this repo.
+
+The `.github/main-ruleset.json` file can be imported in **Settings → Rules → Rulesets** on a plan that supports rulesets for this repository. It requires a PR with one approval and resolved review threads, and blocks force pushes and deletion of `main`.
+
 ## Apply the workbook rubric
 
 | Rating | Evidence |

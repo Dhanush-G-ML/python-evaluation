@@ -127,6 +127,19 @@ def python_has_work(path):
     return any(line.strip() and not line.lstrip().startswith("#") for line in lines)
 
 
+def has_written_tests(work, starter):
+    for file in work.rglob("*.py"):
+        if not (file.name.startswith("test_") or file.name.endswith("_test.py")):
+            continue
+        original = starter / file.relative_to(work)
+        if python_has_work(file) and (
+            not original.is_file() or file.read_bytes().replace(b"\r\n", b"\n")
+            != original.read_bytes().replace(b"\r\n", b"\n")
+        ):
+            return True
+    return False
+
+
 def check_exercise(trainer, submission, exercise, programs):
     exercise_key = exercise.id.lower().replace("-", "_")
     if not trainer.name.startswith("15-"):
@@ -140,17 +153,8 @@ def check_exercise(trainer, submission, exercise, programs):
     directory = exercise_key.upper()
     work = submission / directory
     starter = trainer / "starter" / directory
-    tests = (
-        file for file in work.rglob("*.py")
-        if file.name.startswith("test_") or file.name.endswith("_test.py")
-    )
-    for file in tests:
-        original = starter / file.relative_to(work)
-        if python_has_work(file) and (
-            not original.is_file() or file.read_bytes().replace(b"\r\n", b"\n")
-            != original.read_bytes().replace(b"\r\n", b"\n")
-        ):
-            return review_test_exercise(starter, trainer / "buggy" / directory, work, verbose=False)
+    if has_written_tests(work, starter):
+        return review_test_exercise(starter, trainer / "buggy" / directory, work, verbose=False)
     return CheckResult("No submission", "Waiting for mentee-written tests.")
 
 
