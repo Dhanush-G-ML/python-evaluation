@@ -24,22 +24,40 @@ Use this repository to submit your assigned Python exercises for mentor review. 
 
 ## Submit your work
 
-1. Clone the repo and find your [submission folder](submissions/README.md). Start one branch per topic from `main`. For example, Dhanya can run `git switch -c submission/dhanya-arun/01` for Topic 01.
-2. Open the assigned topic under your folder and add your code to its question-only files. For Topic 01, Dhanya works under `submissions/dhanya-arun/01-lists-dicts-strings/`.
-3. Use Python 3.12 and check your work against the samples and acceptance checklist. Keep demonstrations under `if __name__ == "__main__":` so the reviewer can import the functions or classes.
-4. Commit your own topic folder and push the branch. For this example:
+Replace the angle-bracket placeholders before running the commands.
+
+- `<your-folder>` is your exact folder name from the [submission folder list](submissions/README.md).
+- `<topic-folder>` is the full folder name of your assigned topic in the exercise bank.
+- `<topic-number>` is the two-digit prefix of that topic folder.
+- `<your-name>` is your name as it should appear in the PR title.
+
+1. Clone the repo and start one branch per topic from `main`.
 
    ```powershell
-   git add -- submissions/dhanya-arun/01-lists-dicts-strings/
-   git commit -m "Submit Topic 01 exercises"
-   git push -u origin submission/dhanya-arun/01
+   git switch -c "submission/<your-folder>/<topic-number>" main
    ```
 
-5. On GitHub, select **Compare & pull request** for the branch you just pushed. Check that the base is `main` and the compare branch is yours. Give the PR a title such as `Dhanya Arun | Topic 01`, fill in the exercise IDs and verification commands, and select **Create pull request**. Request your mentor's review. Push any requested changes to the same branch to update the PR.
+2. Open `submissions/<your-folder>/<topic-folder>/` and add your code to the question-only files for your assigned exercises.
+3. Use Python 3.12 and check your work against the samples and acceptance checklist. Keep demonstrations under `if __name__ == "__main__":` so the reviewer can import the functions or classes.
+4. Commit your own topic folder and push the branch.
+
+   ```powershell
+   git add -- "submissions/<your-folder>/<topic-folder>/"
+   git commit -m "Submit Topic <topic-number> exercises"
+   git push -u origin "submission/<your-folder>/<topic-number>"
+   ```
+
+5. On GitHub, select **Compare & pull request** for the branch you just pushed. Check that the base is `main` and the compare branch is yours. Use `<your-name> | Topic <topic-number>` as the PR title, fill in the exercise IDs and verification commands, and select **Create pull request**. Request your mentor's review. Push any requested changes to the same branch to update the PR.
 
 ### File names and local checks
 
-- **Topics 01–10 and 14.** Work in the file named after the exercise, such as `T01_E01.py`. Topic 14 exercise 12 also uses the `shop/` package next to `T14_E12.py`. To run an exercise that expects `data/`, change into the shared exercise folder first. For example, from the repo root run `cd exercises/03-file-handling` then `python ../../submissions/dhanya-arun/03-file-handling/T03_E01.py`.
+- **Topics 01–10 and 14.** Work in the file named after the exercise, using the `T<topic-number>_E<exercise-number>.py` format. Topic 14 exercise 12 also uses the `shop/` package next to `T14_E12.py`. To run an exercise that expects `data/`, start from the repo root and use the exact Python filename (including `.py`) for `<exercise-file>`.
+
+  ```powershell
+  cd "exercises/<topic-folder>"
+  python "../../submissions/<your-folder>/<topic-folder>/<exercise-file>"
+  ```
+
 - **Topics 11–12.** Use the exact filename listed under each exercise heading.
 - **Topic 13.** The named packages have a question in `__main__.py`. Add the modules requested by the exercise and run `python -m <package_name>` from your topic submission folder. Use the sample data path given at the top of the topic.
 - **Topic 15.** Write your tests in the question files under your `T15_E##/` folders. For local testing, copy the supplied implementation and any data files from the matching shared `starter/T15_E##/` folder into your exercise directory. When an exercise asks you to fix the supplied starter tests, read them in the shared folder and bring the relevant code into your question file. Run `python -m pytest` from your exercise directory. Commit your test files and any test configuration you wrote. Install pytest and pytest-cov with `python -m pip install -r requirements-review.txt` from the repository root first.
