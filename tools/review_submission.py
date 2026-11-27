@@ -1,6 +1,8 @@
 """Run the trainer's existing checks on a checked-out topic submission."""
 
 import argparse
+import ast
+from dataclasses import dataclass
 import os
 from pathlib import Path
 import re
@@ -19,6 +21,13 @@ COVERAGE_MODULES = {
     "T15_E11": "cart",
     "T15_E12": "inventory_reader",
 }
+EXERCISE_MODULE = re.compile(r"^(t\d{2}_e\d{2})(?:_|\.|$)", re.IGNORECASE)
+
+
+@dataclass(frozen=True)
+class CheckResult:
+    status: str
+    evidence: str
 
 
 def run_pytest(directory, *options, quiet=False):
@@ -38,7 +47,7 @@ def run_pytest(directory, *options, quiet=False):
     )
 
 
-def review_programs(trainer_topic, submission, topic_number):
+def expected_programs(trainer_topic, topic_number):
     # The reference directory provides the expected filenames. Pytest receives only
     # submitted implementations, the trainer's tests, and the original data.
     reference = trainer_topic / "solutions"
@@ -52,7 +61,28 @@ def review_programs(trainer_topic, submission, topic_number):
         expected.append(reference / "shop")
     if not expected:
         raise ValueError(f"Could not find expected exercise names in {reference}")
+    return expected
 
+
+def stage_program_checks(trainer_topic, stage):
+    shutil.copytree(trainer_topic / "tests", stage / "tests", ignore=IGNORE_GENERATED)
+    for name in ("data", "examples"):
+        if (trainer_topic / name).is_dir():
+            shutil.copytree(trainer_topic / name, stage / name, ignore=IGNORE_GENERATED)
+    if trainer_topic.name.startswith("14-") and os.name == "nt":
+        logging_tests = stage / "tests" / "test_t14_logging.py"
+        checks = logging_tests.read_text(encoding="utf-8")
+        # str(Path(...)) produces native separators on Windows.
+        portable = checks.replace(
+            'assert records[1]["file"] == "invoices/a-17.pdf"',
+            'assert Path(records[1]["file"]).as_posix() == "invoices/a-17.pdf"',
+        )
+        if portable != checks:
+            logging_tests.write_text(portable, encoding="utf-8")
+
+
+def review_programs(trainer_topic, submission, topic_number):
+    expected = expected_programs(trainer_topic, topic_number)
     submitted = {path.name: path for path in submission.iterdir()}
     missing = [
         path.name for path in expected
@@ -67,22 +97,79 @@ def review_programs(trainer_topic, submission, topic_number):
     with tempfile.TemporaryDirectory(prefix="python-review-") as temporary:
         stage = Path(temporary)
         shutil.copytree(submission, stage / "solutions", ignore=IGNORE_GENERATED)
-        shutil.copytree(trainer_topic / "tests", stage / "tests", ignore=IGNORE_GENERATED)
-        for name in ("data", "examples"):
-            if (trainer_topic / name).is_dir():
-                shutil.copytree(trainer_topic / name, stage / name, ignore=IGNORE_GENERATED)
-        if topic_number == "14" and os.name == "nt":
-            logging_tests = stage / "tests" / "test_t14_logging.py"
-            checks = logging_tests.read_text(encoding="utf-8")
-            # The sample uses POSIX separators. The trainer's JSON formatter
-            # calls str(Path(...)), which produces native separators on Windows.
-            portable = checks.replace(
-                'assert records[1]["file"] == "invoices/a-17.pdf"',
-                'assert Path(records[1]["file"]).as_posix() == "invoices/a-17.pdf"',
-            )
-            if portable != checks:
-                logging_tests.write_text(portable, encoding="utf-8")
+        stage_program_checks(trainer_topic, stage)
         return run_pytest(stage, "-vv", "tests").returncode
+
+
+def imports_other_exercise(module, exercise):
+    match = EXERCISE_MODULE.match(module)
+    return match is not None and match.group(1).lower() != exercise
+
+
+def scope_test_imports(test_file, exercise):
+    tree = ast.parse(test_file.read_text(encoding="utf-8"))
+    scoped = []
+    for node in tree.body:
+        if isinstance(node, ast.ImportFrom) and imports_other_exercise(node.module or "", exercise):
+            continue
+        if isinstance(node, ast.Import):
+            node.names = [
+                name for name in node.names if not imports_other_exercise(name.name, exercise)
+            ]
+            if not node.names:
+                continue
+        if isinstance(node, ast.FunctionDef) and node.name == "test_t12_e02_to_e04_sorts_match_sorted":
+            # Keep the assertions for the selected sort and the shared no-mutation assertion.
+            foreign_aliases = {"e02", "e03", "e04"} - {exercise[-3:]}
+            node.body = [
+                statement for statement in node.body
+                if not isinstance(statement, ast.Assert) or not any(
+                    isinstance(item, ast.Name) and item.id in foreign_aliases
+                    for item in ast.walk(statement)
+                )
+            ]
+        scoped.append(node)
+    tree.body = scoped
+    test_file.write_text(ast.unparse(tree) + "\n", encoding="utf-8")
+
+
+def review_program_exercise(trainer_topic, submission, exercise_id, expected):
+    exercise = exercise_id.lower().replace("-", "_")
+    paths = {path.name: path for path in submission.iterdir()} if submission.is_dir() else {}
+    present = [path for path in expected if path.name in paths]
+    if not present:
+        return CheckResult("No submission", "Expected " + ", ".join(path.name for path in expected))
+    missing = [
+        path.name for path in expected
+        if path.name not in paths or paths[path.name].is_dir() != path.is_dir()
+    ]
+    if missing:
+        return CheckResult("Incomplete files", "Missing " + ", ".join(missing))
+
+    with tempfile.TemporaryDirectory(prefix="python-exercise-") as temporary:
+        stage = Path(temporary)
+        solutions = stage / "solutions"
+        solutions.mkdir()
+        for path in present:
+            source = paths[path.name]
+            if path.is_dir():
+                shutil.copytree(source, solutions / path.name, ignore=IGNORE_GENERATED)
+            else:
+                shutil.copy2(source, solutions / path.name)
+        stage_program_checks(trainer_topic, stage)
+        for test_file in (stage / "tests").glob("test_*.py"):
+            scope_test_imports(test_file, exercise)
+        selector = f"test_{exercise[-3:]} or {exercise}"
+        if exercise in {"t12_e02", "t12_e03", "t12_e04"}:
+            selector += " or test_t12_e02_to_e04_sorts_match_sorted"
+        report = stage / "result.xml"
+        result = run_pytest(stage, "tests", "-k", selector, f"--junitxml={report}", quiet=True)
+        cases = test_cases(report)
+        if result.returncode == 0 and any(case.find("skipped") is None for case in cases):
+            return CheckResult("Passed checks", summarize_pytest(result, cases))
+        if result.returncode == 1 and cases:
+            return CheckResult("Failed checks", summarize_pytest(result, cases))
+        return CheckResult("Check error", summarize_pytest(result, cases))
 
 
 def stage_test_exercise(work, submission, starter):
@@ -108,9 +195,33 @@ def test_cases(report):
     return list(ElementTree.parse(report).iter("testcase"))
 
 
-def review_test_exercise(starter, variants, submission):
+def summarize_pytest(result, cases):
+    lines = result.stdout.splitlines() + result.stderr.splitlines()
+    if cases:
+        failed = [
+            case.get("name", "") for case in cases
+            if case.find("failure") is not None or case.find("error") is not None
+        ]
+        skipped = sum(case.find("skipped") is not None for case in cases)
+        passed = len(cases) - len(failed) - skipped
+        summary = f"{passed} passed, {len(failed)} failed or errored, {skipped} skipped/xfailed"
+        if failed:
+            summary += ". " + ", ".join(failed[:3])
+        if result.returncode in (0, 1):
+            coverage = next((line.strip() for line in lines if "Total coverage:" in line), "")
+            return ". ".join(part for part in (summary, coverage) if part)
+    detail = next(
+        (line.strip() for line in reversed(lines)
+         if "Error:" in line or line.startswith(("ERROR ", "ERROR:"))),
+        "",
+    )
+    return f"pytest exit {result.returncode}. {detail}".rstrip(". ")
+
+
+def review_test_exercise(starter, variants, submission, *, verbose=True):
     exercise = starter.name
-    print(f"\n{exercise}", flush=True)
+    if verbose:
+        print(f"\n{exercise}", flush=True)
     with tempfile.TemporaryDirectory(prefix="pytest-review-") as temporary:
         stage = Path(temporary)
         report = stage / "result.xml"
@@ -120,17 +231,20 @@ def review_test_exercise(starter, variants, submission):
         options = []
         if module := COVERAGE_MODULES.get(exercise):
             options = [f"--cov={module}", "--cov-report=term-missing", "--cov-fail-under=90"]
-        baseline = run_pytest(original_work, report_option, *options)
-        if baseline.returncode or not any(
-            case.find("skipped") is None for case in test_cases(report)
-        ):
-            print("Baseline check failed. Run against the starter until at least one test passes.")
-            return False
+        baseline = run_pytest(original_work, report_option, *options, quiet=True)
+        cases = test_cases(report)
+        baseline_evidence = summarize_pytest(baseline, cases)
+        if verbose:
+            print(baseline.stdout + baseline.stderr, end="")
+        if baseline.returncode or not any(case.find("skipped") is None for case in cases):
+            status = "Failed checks" if baseline.returncode in (0, 1, 5) else "Check error"
+            return CheckResult(status, "Starter run: " + baseline_evidence)
 
         variant_dirs = sorted(path for path in variants.iterdir() if path.is_dir())
         if not variant_dirs:
             raise ValueError(f"No trainer variants found in {variants}")
-        caught = 0
+        missed = []
+        errors = []
         for variant in variant_dirs:
             with tempfile.TemporaryDirectory(dir=stage) as variant_temp:
                 work = Path(variant_temp) / "submission"
@@ -144,15 +258,28 @@ def review_test_exercise(starter, variants, submission):
                     case.find("failure") is not None or case.find("error") is not None
                     for case in test_cases(report)
                 ):
-                    caught += 1
-                    print(f"  Caught: {variant.name}")
+                    if verbose:
+                        print(f"  Caught: {variant.name}")
                 elif result.returncode == 0:
-                    print(f"  Missed: {variant.name}")
+                    missed.append(variant.name)
+                    if verbose:
+                        print(f"  Missed: {variant.name}")
                 else:
-                    print(f"  Review error: {variant.name} (pytest exit {result.returncode})")
-                    print(result.stdout + result.stderr)
-        print(f"Variants caught: {caught}/{len(variant_dirs)}")
-        return caught == len(variant_dirs)
+                    errors.append(variant.name)
+                    if verbose:
+                        print(f"  Review error: {variant.name} (pytest exit {result.returncode})")
+                        print(result.stdout + result.stderr)
+        caught = len(variant_dirs) - len(missed) - len(errors)
+        summary = f"Variants caught: {caught}/{len(variant_dirs)}"
+        if verbose:
+            print(summary)
+        evidence = f"Starter run: {baseline_evidence}. {summary}"
+        if missed:
+            evidence += ". Missed: " + ", ".join(missed)
+        if errors:
+            evidence += ". Variant errors: " + ", ".join(errors)
+            return CheckResult("Check error", evidence)
+        return CheckResult("Failed checks" if missed else "Passed checks", evidence)
 
 
 def review_tests(trainer_topic, submission, exercise_number):
@@ -176,7 +303,7 @@ def review_tests(trainer_topic, submission, exercise_number):
         review_test_exercise(starter / name, buggy / name, submission / name)
         for name in exercises
     ]
-    return 0 if all(results) else 1
+    return 0 if all(result.status == "Passed checks" for result in results) else 1
 
 
 def main():
