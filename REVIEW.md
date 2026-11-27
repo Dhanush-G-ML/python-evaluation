@@ -22,6 +22,8 @@ The CSV includes **Workbook sheet**, **Rating cell**, **Trainer comments cell**,
 
 The **Pull request validation** workflow checks PR scope and Python syntax. The **Submission progress** workflow creates a `submission-progress` CSV artifact after a push or merge to `main`. For a filtered progress report, open **Actions**, select **Submission progress**, choose **Run workflow**, and enter topics and first names. Download the CSV from the run's **Artifacts** section.
 
+On the sample branch `submission/sample-user/01`, **Submission checks** also runs a public pytest test for the greeting after the syntax check passes.
+
 The progress CSV shows which exercises have code. Use the local evaluation command for private trainer tests and Excel rating evidence. GitHub artifacts are accessible to people with read access to this repo.
 
 The `.github/main-ruleset.json` file can be imported in **Settings → Rules → Rulesets** on a plan that supports rulesets for this repository. Once active, it requires a passing **Submission checks** result from GitHub Actions, resolved review threads, and two approvals for every PR into `main`. One approval must come from `@Dhanush-G-ML`, the code owner, and the other from a different reviewer with write access. It also blocks force pushes and deletion of `main`. The owner-authored sample PR cannot satisfy the owner-approval requirement because GitHub prevents authors from approving their own PRs.
