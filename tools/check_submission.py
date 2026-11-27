@@ -1,7 +1,7 @@
 """Check the contents of a mentee pull request without executing its code."""
 
 import argparse
-import re
+from pathlib import PurePosixPath
 import subprocess
 import sys
 
@@ -19,30 +19,34 @@ def main():
     parser.add_argument("--owner", required=True)
     args = parser.parse_args()
 
-    if not args.branch.startswith("submission/") and args.author.casefold() == args.owner.casefold():
-        print("Repository owner maintenance PR.")
-        return 0
-
-    branch = re.fullmatch(r"submission/([a-z0-9-]+)/(0[1-9]|1[0-5])", args.branch)
-    if not branch:
-        parser.error("Use submission/<your-folder>/<two-digit-topic> for your branch name.")
-    mentee, topic = branch.groups()
-
     base = git("rev-parse", "--verify", "--end-of-options", f"{args.base}^{{commit}}").decode().strip()
     head = git("rev-parse", "--verify", "--end-of-options", f"{args.head}^{{commit}}").decode().strip()
-    mentees = git("ls-tree", "-d", "--name-only", f"{base}:submissions").decode().splitlines()
-    if mentee not in mentees:
-        parser.error(f"Unknown mentee folder {mentee!r}.")
-    folders = git("ls-tree", "-d", "--name-only", f"{base}:submissions/{mentee}").decode().splitlines()
-    topics = [folder for folder in folders if folder.startswith(f"{topic}-")]
-    if len(topics) != 1:
-        parser.error(f"No topic {topic} submission folder exists for {mentee}.")
-    directory = f"submissions/{mentee}/{topics[0]}/"
-
     changes = git("diff", "--name-only", "--no-renames", "-z", f"{base}...{head}", "--")
     files = changes.decode("utf-8").split("\0")[:-1]
     if not files:
         parser.error("Add your exercise work before opening a pull request.")
+
+    base_files = git("ls-tree", "-r", "--name-only", "-z", f"{base}:submissions")
+    known_topics = {
+        path.parts[:2]
+        for path in map(PurePosixPath, base_files.decode("utf-8").split("\0")[:-1])
+        if len(path.parts) >= 3
+    }
+    topics = {
+        path.parts[1:3]
+        for path in map(PurePosixPath, files)
+        if len(path.parts) >= 4
+        and path.parts[0] == "submissions"
+        and path.parts[1:3] in known_topics
+    }
+    if not topics and args.author.casefold() == args.owner.casefold():
+        print("Repository owner maintenance PR.")
+        return 0
+    if len(topics) != 1:
+        parser.error("Change files in exactly one existing submission topic folder.")
+
+    mentee, topic = topics.pop()
+    directory = f"submissions/{mentee}/{topic}/"
     outside = [file for file in files if not file.startswith(directory)]
     if outside:
         for file in outside:
@@ -60,7 +64,7 @@ def main():
             failed = True
     if failed:
         return 1
-    print(f"Submission checks passed for {directory} ({len(files)} changed files).")
+    print(f"Submission checks passed for {directory} on branch {args.branch!r}.")
     return 0
 
 
