@@ -10,11 +10,11 @@ From the trainer's checkout, install the review dependencies in a Python 3.12 en
 python -m pip install -r requirements-review.txt
 python tools/report_evaluation.py --topic "1,2"
 python tools/report_evaluation.py --topic "1-3" --user all
-python tools/report_evaluation.py --topic "1,3-5" --user "Sahana N,dhanya-arun"
-python tools/report_evaluation.py --topic all --user "Rishitaa Bohra,shravani-desai"
+python tools/report_evaluation.py --topic "1,3-5" --user "Sahana,Dhanya"
+python tools/report_evaluation.py --topic all --user "rishitaa,SHRAVANI"
 ```
 
-Topic ranges include both endpoints. Use names or folder slugs for mentees. Quote comma-separated selections in PowerShell. Both filters can be repeated and default to `all` when omitted. The report uses the sibling `python training` folder by default. Use `--training-dir` or `--workbook` to point at a different location.
+Topic ranges include both endpoints. Select mentees by first name in any letter case. Quote comma-separated selections in PowerShell. Both filters can be repeated and default to `all` when omitted. The report uses the sibling `python training` folder by default. Use `--training-dir` or `--workbook` to point at a different location.
 
 The CSV includes **Workbook sheet**, **Rating cell**, **Trainer comments cell**, **Check**, **Suggested rating**, **Your rating**, and the test evidence. Question-only files appear as **No submission**, with a blank rating. Failed checks or incomplete files suggest a provisional **2**. For passing checks, use the rubric and the PR review to choose a rating. Review individual errors before entering any value.
 
@@ -45,7 +45,7 @@ The workbook calculates core and challenge averages separately. With its default
 3. From the trainer's checkout, run the report against that worktree. The report checks each submitted exercise independently, so a partial PR produces results for the work it contains.
 
    ```powershell
-   python tools/report_evaluation.py --topic 01 --user dhanya-arun --submissions-dir ../python-review-dhanya/submissions
+   python tools/report_evaluation.py --topic 01 --user Dhanya --submissions-dir ../python-review-dhanya/submissions
    ```
 
    For Topic 15, the report runs the mentee's tests against the original starter implementation, checks coverage for T15-E10 through T15-E12, and reports which trainer variants the tests catch. Compare assignment-specific fixture, marker and assertion requirements with the exercise checklist.

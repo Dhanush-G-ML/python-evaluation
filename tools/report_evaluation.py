@@ -27,6 +27,7 @@ MENTEES = {
     "dhanya-arun": "Dhanya Arun",
     "shravani-desai": "Shravani Desai",
 }
+FIRST_NAMES = {name.split()[0].casefold(): slug for slug, name in MENTEES.items()}
 
 
 @dataclass(frozen=True)
@@ -43,21 +44,19 @@ class Topic:
     exercises: tuple[Exercise, ...]
 
 
-def select_mentee(value):
-    for slug, name in MENTEES.items():
-        if value.casefold() in {slug, name.casefold()}:
-            return slug
-    raise argparse.ArgumentTypeError(f"Unknown mentee {value!r}. Use {', '.join(MENTEES)}.")
-
-
 def select_mentees(value):
     mentees = []
     for item in value.split(","):
-        name = item.strip()
-        if name.casefold() == "all":
+        name = item.strip().casefold()
+        if name == "all":
             mentees.extend(MENTEES)
+        elif name in FIRST_NAMES:
+            mentees.append(FIRST_NAMES[name])
         else:
-            mentees.append(select_mentee(name))
+            choices = ", ".join(FIRST_NAMES)
+            raise argparse.ArgumentTypeError(
+                f"Unknown first name {item.strip()!r}. Use {choices}, or all."
+            )
     return mentees
 
 
@@ -170,7 +169,7 @@ def main():
     parser.add_argument("--topic", "--topics", action="extend", type=select_topics,
                         metavar="SELECTION", help="topic numbers, ranges, or all (e.g. 1,3-5)")
     parser.add_argument("--user", "--users", action="extend", type=select_mentees,
-                        metavar="SELECTION", help="comma-separated mentee names or folders, or all")
+                        metavar="SELECTION", help="comma-separated first names (case-insensitive), or all")
     parser.add_argument("--training-dir", type=Path, default=ROOT.parent / "python training",
                         help="location of the original trainer materials")
     parser.add_argument("--workbook", type=Path, help="read-only rubric workbook locator")
