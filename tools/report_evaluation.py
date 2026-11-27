@@ -50,6 +50,37 @@ def select_mentee(value):
     raise argparse.ArgumentTypeError(f"Unknown mentee {value!r}. Use {', '.join(MENTEES)}.")
 
 
+def select_mentees(value):
+    mentees = []
+    for item in value.split(","):
+        name = item.strip()
+        if name.casefold() == "all":
+            mentees.extend(MENTEES)
+        else:
+            mentees.append(select_mentee(name))
+    return mentees
+
+
+def select_topics(value):
+    topics = []
+    for item in value.split(","):
+        item = item.strip()
+        if item.casefold() == "all":
+            topics.extend(range(1, 16))
+            continue
+        match = re.fullmatch(r"([0-9]{1,2})(?:\s*-\s*([0-9]{1,2}))?", item)
+        if match:
+            start = int(match[1])
+            end = int(match[2] or match[1])
+            if 1 <= start <= end <= 15:
+                topics.extend(range(start, end + 1))
+                continue
+        raise argparse.ArgumentTypeError(
+            f"Invalid topic selection {item!r}. Use numbers or ascending ranges from 1 to 15, or all."
+        )
+    return topics
+
+
 def read_workbook(path, mentees, topic_numbers):
     from openpyxl import load_workbook
 
@@ -136,10 +167,10 @@ def rating_guidance(result):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--topic", action="append", type=int, choices=range(1, 16),
-                        metavar="01-15", help="select a topic (repeatable)")
-    parser.add_argument("--user", action="append", type=select_mentee, metavar="NAME_OR_SLUG",
-                        help="select a mentee by name or folder (repeatable)")
+    parser.add_argument("--topic", "--topics", action="extend", type=select_topics,
+                        metavar="SELECTION", help="topic numbers, ranges, or all (e.g. 1,3-5)")
+    parser.add_argument("--user", "--users", action="extend", type=select_mentees,
+                        metavar="SELECTION", help="comma-separated mentee names or folders, or all")
     parser.add_argument("--training-dir", type=Path, default=ROOT.parent / "python training",
                         help="location of the original trainer materials")
     parser.add_argument("--workbook", type=Path, help="read-only rubric workbook locator")

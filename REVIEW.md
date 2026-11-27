@@ -8,12 +8,13 @@ From the trainer's checkout, install the review dependencies in a Python 3.12 en
 
 ```powershell
 python -m pip install -r requirements-review.txt
-python tools/report_evaluation.py --topic 01
-python tools/report_evaluation.py --user "Sahana N"
-python tools/report_evaluation.py --topic 01 --user dhanya-arun
+python tools/report_evaluation.py --topic "1,2"
+python tools/report_evaluation.py --topic "1-3" --user all
+python tools/report_evaluation.py --topic "1,3-5" --user "Sahana N,dhanya-arun"
+python tools/report_evaluation.py --topic all --user "Rishitaa Bohra,shravani-desai"
 ```
 
-The first report covers Topic 01 for all four mentees. The second covers every topic for Sahana. The third covers Topic 01 for Dhanya. You can repeat `--user` and `--topic` to select several. Run without filters for all four mentees and all 15 topics. The report uses the sibling `python training` folder by default. Use `--training-dir` or `--workbook` to point at a different location.
+Topic ranges include both endpoints. Use names or folder slugs for mentees. Quote comma-separated selections in PowerShell. Both filters can be repeated and default to `all` when omitted. The report uses the sibling `python training` folder by default. Use `--training-dir` or `--workbook` to point at a different location.
 
 The CSV includes **Workbook sheet**, **Rating cell**, **Trainer comments cell**, **Check**, **Suggested rating**, **Your rating**, and the test evidence. Question-only files appear as **No submission**, with a blank rating. Failed checks or incomplete files suggest a provisional **2**. For passing checks, use the rubric and the PR review to choose a rating. Review individual errors before entering any value.
 
