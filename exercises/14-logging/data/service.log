@@ -1,0 +1,64 @@
+2026-03-02 10:10:22,123 INFO     shop.orders: order 1031 received
+2026-03-02 10:10:22,123 ERROR    shop.orders: bad quantity in order 1031
+Traceback (most recent call last):
+  File "/srv/shop/service.py", line 156, in make_service_logs
+    action()
+  File "/srv/shop/service.py", line 138, in <lambda>
+    31: ("shop.orders", lambda: shop.parse_qty("two"), "bad quantity in order %d"),
+                                ^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/shop/service.py", line 116, in parse_qty
+    return int(text)
+           ^^^^^^^^^
+ValueError: invalid literal for int() with base 10: 'two'
+2026-03-02 10:10:42,123 INFO     shop.payments: order 1032 paid (198.00)
+2026-03-02 10:11:01,123 INFO     shop.orders: order 1033 received
+2026-03-02 10:11:06,123 INFO     shop.orders: order 1034 received
+2026-03-02 10:11:39,123 DEBUG    shop.inventory: stock checked for order 1035
+2026-03-02 10:11:39,123 WARNING  shop.inventory: low stock for widget
+2026-03-02 10:11:41,123 DEBUG    shop.inventory: stock checked for order 1036
+2026-03-02 10:11:41,123 WARNING  shop.inventory: low stock for widget
+2026-03-02 10:12:21,123 INFO     shop.orders: order 1037 received
+2026-03-02 10:12:41,123 INFO     shop.orders: order 1038 received
+2026-03-02 10:12:41,123 ERROR    shop.inventory: stock lookup failed for order 1038
+Traceback (most recent call last):
+  File "/srv/shop/service.py", line 156, in make_service_logs
+    action()
+  File "/srv/shop/service.py", line 139, in <lambda>
+    38: ("shop.inventory", lambda: shop.stock("doohickey"), "stock lookup failed for order %d"),
+                                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/shop/service.py", line 113, in stock
+    return table[sku]
+           ~~~~~^^^^^
+KeyError: 'doohickey'
+2026-03-02 10:12:58,123 INFO     shop.orders: order 1039 received
+2026-03-02 10:13:11,123 INFO     shop.payments: order 1040 paid (172.00)
+2026-03-02 10:13:41,123 INFO     shop.orders: order 1041 received
+2026-03-02 10:14:20,123 DEBUG    shop.inventory: stock checked for order 1042
+2026-03-02 10:14:27,123 INFO     shop.payments: order 1043 paid (42.00)
+2026-03-02 10:14:37,123 INFO     shop.orders: order 1044 received
+2026-03-02 10:14:37,123 ERROR    shop.payments: charge failed for order 1044
+Traceback (most recent call last):
+  File "/srv/shop/service.py", line 156, in make_service_logs
+    action()
+  File "/srv/shop/service.py", line 140, in <lambda>
+    44: ("shop.payments", lambda: shop.charge(640), "charge failed for order %d"),
+                                  ^^^^^^^^^^^^^^^^
+  File "/srv/shop/service.py", line 108, in charge
+    raise TimeoutError("payment gateway timed out")
+TimeoutError: payment gateway timed out
+2026-03-02 10:14:56,123 INFO     shop.orders: order 1045 received
+2026-03-02 10:15:19,123 DEBUG    shop.inventory: stock checked for order 1046
+2026-03-02 10:18:19,123 DEBUG    shop.inventory: stock checked for order 1047
+2026-03-02 10:18:58,123 DEBUG    shop.inventory: stock checked for order 1048
+2026-03-02 10:19:14,123 INFO     shop.payments: order 1049 paid (206.00)
+2026-03-02 10:19:31,123 INFO     shop.payments: order 1050 paid (370.00)
+2026-03-02 10:19:57,123 INFO     shop.orders: order 1051 received
+2026-03-02 10:20:16,123 DEBUG    shop.inventory: stock checked for order 1052
+2026-03-02 10:20:20,123 INFO     shop.payments: order 1053 paid (79.00)
+2026-03-02 10:20:35,123 INFO     shop.orders: order 1054 received
+2026-03-02 10:20:45,123 INFO     shop.orders: order 1055 received
+2026-03-02 10:21:25,123 INFO     shop.payments: order 1056 paid (46.00)
+2026-03-02 10:21:30,123 INFO     shop.orders: order 1057 received
+2026-03-02 10:21:56,123 INFO     shop.orders: order 1058 received
+2026-03-02 10:22:33,123 INFO     shop.orders: order 1059 received
+2026-03-02 10:22:47,123 DEBUG    shop.inventory: stock checked for order 1060

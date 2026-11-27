@@ -1,0 +1,70 @@
+2026-03-02 09:00:04,123 WARNING  app.auth: login failed for user bob
+2026-03-02 09:00:13,123 INFO     app.web: GET /account 200 45ms
+2026-03-02 09:00:23,123 DEBUG    app.db: query products took 52ms
+2026-03-02 09:00:36,123 INFO     app.web: GET /cart 200 122ms
+2026-03-02 09:00:48,123 WARNING  app.web: GET /cart 404 331ms
+2026-03-02 09:00:53,123 INFO     app.web: GET /search 200 348ms
+2026-03-02 09:00:59,123 INFO     app.web: GET /account 200 43ms
+2026-03-02 09:01:10,123 INFO     app.web: GET / 200 148ms
+2026-03-02 09:01:23,123 DEBUG    app.db: query products took 58ms
+2026-03-02 09:01:27,123 INFO     app.jobs: job backup finished in 2s
+2026-03-02 09:01:46,123 WARNING  app.auth: login failed for user carla
+2026-03-02 09:01:50,123 INFO     app.jobs: job report finished in 9s
+2026-03-02 09:01:57,123 INFO     app.web: GET /checkout 200 327ms
+2026-03-02 09:02:13,123 INFO     app.web: GET /search 200 138ms
+2026-03-02 09:02:17,123 INFO     app.web: GET /cart 200 151ms
+2026-03-02 09:02:18,123 INFO     app.web: GET /account 200 218ms
+2026-03-02 09:02:35,123 ERROR    app.db: connection to orders-db lost
+2026-03-02 09:02:38,123 DEBUG    app.db: query orders took 89ms
+2026-03-02 09:02:44,123 INFO     app.auth: login ok for user dev
+2026-03-02 09:03:00,123 DEBUG    app.db: query orders took 55ms
+2026-03-02 09:03:04,123 INFO     app.web: GET /checkout 200 209ms
+2026-03-02 09:03:19,123 WARNING  app.auth: login failed for user dev
+2026-03-02 09:03:24,123 DEBUG    app.db: query products took 36ms
+2026-03-02 09:03:43,123 DEBUG    app.db: query users took 53ms
+2026-03-02 09:03:57,123 WARNING  app.web: GET /cart 404 371ms
+2026-03-02 09:04:09,123 DEBUG    app.db: query orders took 47ms
+2026-03-02 09:04:19,123 WARNING  app.auth: login failed for user bob
+2026-03-02 09:04:37,123 DEBUG    app.db: query orders took 14ms
+2026-03-02 09:04:50,123 INFO     app.web: GET / 200 106ms
+2026-03-02 09:04:51,123 INFO     app.web: GET /search 200 267ms
+2026-03-02 09:05:08,123 INFO     app.web: GET /cart 200 66ms
+2026-03-02 09:05:13,123 INFO     app.web: GET / 200 125ms
+2026-03-02 09:05:30,123 INFO     app.web: GET /products 200 135ms
+2026-03-02 09:05:41,123 INFO     app.web: GET /account 200 397ms
+2026-03-02 09:05:43,123 INFO     app.auth: login ok for user bob
+2026-03-02 09:05:50,123 INFO     app.web: GET /checkout 200 204ms
+2026-03-02 09:06:03,123 INFO     app.auth: login ok for user carla
+2026-03-02 09:06:05,123 INFO     app.web: GET /account 200 227ms
+2026-03-02 09:06:16,123 INFO     app.web: GET /cart 200 60ms
+2026-03-02 09:06:23,123 INFO     app.web: GET /account 200 80ms
+2026-03-02 09:06:32,123 ERROR    app.web: GET /checkout 500 1358ms
+2026-03-02 09:06:37,123 WARNING  app.auth: login failed for user dev
+2026-03-02 09:06:41,123 WARNING  app.web: GET /account 404 196ms
+2026-03-02 09:06:55,123 DEBUG    app.db: query users took 58ms
+2026-03-02 09:07:03,123 INFO     app.web: GET /products 200 379ms
+2026-03-02 09:07:08,123 INFO     app.web: GET /account 200 121ms
+2026-03-02 09:07:26,123 INFO     app.jobs: job cleanup finished in 7s
+2026-03-02 09:07:41,123 INFO     app.web: GET /checkout 200 173ms
+2026-03-02 09:07:53,123 WARNING  app.web: GET /account 404 336ms
+2026-03-02 09:07:57,123 INFO     app.web: GET /checkout 200 66ms
+2026-03-02 09:08:03,123 INFO     app.web: GET / 200 354ms
+2026-03-02 09:08:05,123 INFO     app.web: GET /checkout 200 309ms
+2026-03-02 09:08:06,123 DEBUG    app.db: query orders took 65ms
+2026-03-02 09:08:23,123 INFO     app.web: GET /cart 200 49ms
+2026-03-02 09:08:31,123 WARNING  app.web: GET /account 404 311ms
+2026-03-02 09:08:32,123 INFO     app.auth: login ok for user bob
+2026-03-02 09:08:33,123 INFO     app.web: GET / 200 71ms
+2026-03-02 09:08:46,123 DEBUG    app.db: query orders took 46ms
+2026-03-02 09:08:57,123 INFO     app.web: GET /cart 200 78ms
+2026-03-02 09:09:16,123 INFO     app.jobs: job report finished in 4s
+2026-03-02 09:09:33,123 WARNING  app.auth: login failed for user dev
+2026-03-02 09:09:36,123 DEBUG    app.db: query orders took 75ms
+2026-03-02 09:09:49,123 CRITICAL app.jobs: job backup aborted: disk full
+2026-03-02 09:10:03,123 INFO     app.web: GET /account 200 398ms
+2026-03-02 09:10:10,123 INFO     app.web: GET /checkout 200 374ms
+2026-03-02 09:10:18,123 DEBUG    app.db: query products took 17ms
+2026-03-02 09:10:26,123 INFO     app.web: GET /products 200 138ms
+2026-03-02 09:10:34,123 WARNING  app.web: GET /checkout 404 346ms
+2026-03-02 09:10:36,123 WARNING  app.web: GET /products 404 353ms
+2026-03-02 09:10:46,123 DEBUG    app.db: query orders took 30ms

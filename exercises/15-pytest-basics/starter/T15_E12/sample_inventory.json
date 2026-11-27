@@ -1,0 +1,6 @@
+[
+  {"name": "Pen", "price": 1.5, "qty": 100},
+  {"name": "Notebook", "price": "3.25", "qty": 40},
+  {"name": "Stapler", "price": 8, "qty": 5},
+  {"name": "Ruler", "price": 0.9}
+]

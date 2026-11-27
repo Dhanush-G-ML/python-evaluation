@@ -1,0 +1,8 @@
+[
+  {"id": "A-100", "customer": "ana", "items": [{"sku": "widget", "qty": 2}], "card": "4111111111111111", "amount": 25.0},
+  {"id": "A-101", "customer": "bob", "items": [{"sku": "gadget", "qty": 2}], "card": "5500005555555559", "amount": 60.0},
+  {"id": "A-102", "customer": "carla", "items": [{"sku": "gizmo", "qty": 5}], "card": "4012888888881881", "amount": 150.0},
+  {"id": "A-103", "customer": "dev", "items": [{"sku": "widget", "qty": 1}], "card": "378282246310005", "amount": 2500.0},
+  {"id": "A-104", "customer": "erin", "items": [{"sku": "sprocket", "qty": 1}], "card": "6011111111111117", "amount": 9.5},
+  {"id": "A-105", "customer": "finn", "items": [{"sku": "widget", "qty": 3}, {"sku": "gadget", "qty": 1}], "card": "3530111333300000", "amount": 42.0}
+]

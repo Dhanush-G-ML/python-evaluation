@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.env
+output/
+/review-results/
+/python training/
+solutions/
+buggy/
+python-topic-evaluation.xlsx*
+python-exercises.docx
